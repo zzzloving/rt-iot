@@ -57,10 +57,11 @@ class MsisdnImeiQueryCtroller extends Controller{
 
         //接收前台传入参数 组成body
         var jsonParam = {
-            "msisdn": this.ctx.request.msisdn,
-            "start_data": this.ctx.request.start_data,
-            "end_data": this.ctx.request.end_data
+            "msisdn": this.ctx.request.body.msisdn,
+            "start_data": this.ctx.request.body.start_data,
+            "end_data": this.ctx.request.body.end_data
         };
+        console.log("jsonparam",jsonParam)
         //请求移动接口的参数集合除去签名
        var gather = {
             appid: this.config.appid,
@@ -68,7 +69,7 @@ class MsisdnImeiQueryCtroller extends Controller{
             transationid: transationid,
             timestamp: timestamp,
             randomstr: randomstr,
-            body: jsonParam   
+            body: JSON.stringify(jsonParam) 
         };
         //组成集合
         var arr = [];
@@ -79,7 +80,7 @@ class MsisdnImeiQueryCtroller extends Controller{
                 arr.push(i);
             }
         } 
-        // console.log("arr", arr)
+        console.log("arr", arr)
         //按照参数名排序
         arr.sort();
         //使用url键值对格式拼接字符串
@@ -97,7 +98,7 @@ class MsisdnImeiQueryCtroller extends Controller{
         const stringSingtemp = stringA + key;
         console.log("stringSingtemp", stringSingtemp)
         //对stringSignTemp进行SHA256加密 得到sign值
-        const sign = CryptoJS.SHA256(stringSingtemp);
+        const sign = CryptoJS.SHA256(stringSingtemp).toString();
         console.log('sign', sign)
 
         //请求移动接口的参数
@@ -108,9 +109,9 @@ class MsisdnImeiQueryCtroller extends Controller{
             timestamp: timestamp,
             randomstr: randomstr,
             sign: sign,
-            body: jsonParam   
+            body: JSON.stringify(jsonParam)  
         };
-        const result = await ctx.curl("http://211.136.110.98:8082/1/msisdnImeiQuery", {
+        const result = await ctx.curl("http://211.136.110.98:8082/api/V1/msisdnImeiQuery", {
             method: 'POST',
             data: params,
             dataType: 'text',
