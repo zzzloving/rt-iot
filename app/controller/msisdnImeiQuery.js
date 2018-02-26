@@ -6,7 +6,7 @@ const moment = require("moment");
 const CryptoJS = require('crypto-js');
 
 const ability = "msisdnImeiQuery";
-const key = "3BC37E01224B5CDDFF0719AADEA09132536C6DF0112A56D3ADDEEF60894CDDEE";
+const key = "0E8675C8DCD3287CC1F6486BB0F0E3384A8AFE43A897EC326175CB12F65CB0A0";
 
 class MsisdnImeiQueryCtroller extends Controller{
     async index() {
@@ -36,7 +36,7 @@ class MsisdnImeiQueryCtroller extends Controller{
 		const seconds = nowDate.getSeconds() < 10 ? "0" + nowDate.getSeconds(): nowDate.getSeconds();
 		const timestamp = year + month + day + hour + minutes + seconds;
         console.log('timestamp',timestamp)
-        //生产随机字符串
+        //生产32随机字符串
         function randomWord(range) {
 			var str = "",
             arr = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
@@ -51,15 +51,25 @@ class MsisdnImeiQueryCtroller extends Controller{
         console.log('randomstr',randomstr)
 
       //生成流水 APPID+时间戳+随机数
-      const randomstr8 = randomWord(8);
+      function randomWord8() {
+        var str = "",
+            arr = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+
+        for(var i = 0; i < 8; i++) {
+          const pos = Math.round(Math.random() * (arr.length - 1));
+          str += arr[pos];
+        }
+        return str;
+      }
+      const randomstr8 = randomWord8();
       const transationid = this.config.appid + timestamp + randomstr8;
       console.log('transationid',transationid)
 
         //接收前台传入参数 组成body
         var jsonParam = {
             "msisdn": this.ctx.request.body.msisdn,
-            "start_data": this.ctx.request.body.start_date,
-            "end_data": this.ctx.request.body.end_date
+            "start_date": this.ctx.request.body.start_date,
+            "end_date": this.ctx.request.body.end_date
         };
         console.log("jsonparam",jsonParam)
         //请求移动接口的参数集合除去签名
@@ -73,7 +83,7 @@ class MsisdnImeiQueryCtroller extends Controller{
         };
         //组成集合
         var arr = [];
-        console.log("arr", arr)
+        // console.log("arr", arr)
         
         for( var i in gather){
             if(gather[i] !== null){
@@ -95,7 +105,7 @@ class MsisdnImeiQueryCtroller extends Controller{
         }) 
         console.log("stringA", stringA)   
         //拼接秘钥key 得到stringSignTemp字符串
-        const stringSingtemp = stringA + key;
+        const stringSingtemp = stringA + '&' +'key' + '=' + key;
         console.log("stringSingtemp", stringSingtemp)
         //对stringSignTemp进行SHA256加密 得到sign值
         const sign = CryptoJS.SHA256(stringSingtemp).toString();
@@ -111,8 +121,10 @@ class MsisdnImeiQueryCtroller extends Controller{
             sign: sign,
             body: JSON.stringify(jsonParam)  
         };
-        const result = await ctx.curl("http://211.136.110.98:8082/api/V1/msisdnImeiQuery", {
+        console.log('params' ,params)
+        const result = await ctx.curl("http://211.136.110.102:8082/api/V1/msisdnImeiQuery", {
             method: 'POST',
+            contentType: 'json',
             dataType: 'json',
             data: params,
             rejectUnauthorized: false,

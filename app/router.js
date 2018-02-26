@@ -6,4 +6,5 @@ module.exports = app => {
   router.get('/', controller.home.index);
 
   router.post('/msisdnImeiQuery', controller.msisdnImeiQuery.index);
+  router.get('/iotportal',controller.iotportal.msisdnImeiQuery);
 };

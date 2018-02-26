@@ -5,7 +5,7 @@ module.exports = appInfo => {
 
   // use for cookie sign key, should change to your own and keep security
   config.keys = appInfo.name + '_1515140500894_4050';
-  config.appid = "2017120410422261997";
+  config.appid = "2018022420345372075";
   config.HTTPURL = "http://211.136.110.98:8082/api/V1"
   // add your config here
   config.middleware = [];
@@ -14,6 +14,15 @@ module.exports = appInfo => {
       enable: false,
     },
   };
+  //配置数据库插件
+  config.sequelize = {
+    dialect: 'mysql', // support: mysql, mariadb, postgres, mssql
+    database: 'msisdn',
+    host: 'localhost',
+    port: '3306',
+    username: 'root',
+    password: ''
+  }
 
   return config;
 };
